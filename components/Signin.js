@@ -7,20 +7,14 @@ import {
   // Text,
   TouchableOpacity,
   Alert,
-} from "react-native";
-import {
-  ThemeProvider,
-  Button,
-  Input,
   Image,
-  Text,
-} from "react-native-elements";
+} from "react-native";
+import { ThemeProvider, Button, Input, Text } from "react-native-elements";
 import axios from "axios";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { api } from "../constants/Api";
 import { AuthContext } from "../constants/Context";
 import Loadpage from "./Loadpage";
-
 import { Dimensions } from "react-native";
 
 const windowHeight = Dimensions.get("window").height;
@@ -118,10 +112,10 @@ const Signin = ({ route, navigate, navigation }) => {
   return (
     <ThemeProvider theme={theme}>
       <View style={styles.head}>
-        <Icon name="lock" size={18} color="#fff" />
+        <Icon name="lock" size={24} color="#fff" />
         <Text
           style={{
-            fontSize: 18,
+            fontSize: 24,
             fontWeight: "bold",
             color: "#fff",
             marginLeft: 10,
@@ -132,15 +126,30 @@ const Signin = ({ route, navigate, navigation }) => {
         </Text>
       </View>
       <View style={styles.box}>
+        
         <ScrollView style={styles.container}>
+        <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              style={styles.tinyLogo}
+              source={require("../assets/icon.png")}
+            />
+          </View>
+
           <Input
-            leftIcon={<Icon name="user" size={20} color="#671eee" />}
+            leftIcon={<Icon name="user" size={20} color="#448fff" />}
             placeholder={"Username"}
             inputStyle={{ paddingLeft: 10, paddingTop: -20 }}
             onChangeText={(userName) => setUserName(userName)}
           />
           <Input
-            leftIcon={<Icon name="key" size={20} color="#671eee" />}
+            leftIcon={<Icon name="key" size={20} color="#448fff" />}
             secureTextEntry={true}
             placeholder={"Password"}
             inputStyle={{ paddingLeft: 10 }}
@@ -150,7 +159,7 @@ const Signin = ({ route, navigate, navigation }) => {
             icon={<Icon name="sign-in" size={20} color="#fff" />}
             title="   Sign in"
             containerStyle={{ marginTop: 10 }}
-            buttonStyle={{ backgroundColor: "#671eee" }}
+            buttonStyle={{ backgroundColor: "#448fff" }}
             onPress={() => checkLogin(this)}
           />
         </ScrollView>
@@ -171,12 +180,13 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
+    // alignItems:"center",
     borderTopRightRadius: 20,
     borderTopLeftRadius: 20,
     backgroundColor: "#fff",
     position: "absolute",
     bottom: 0,
-    height: "90%",
+    height: "80%",
     width: "100%",
   },
   container: {
@@ -185,8 +195,8 @@ const styles = StyleSheet.create({
   },
   head: {
     display: "flex",
-    backgroundColor: "#671eee",
-    height: "15%",
+    backgroundColor: "#448fff",
+    height: "25%",
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",
@@ -196,6 +206,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
     marginTop: 10,
+  },
+  tinyLogo: {
+
+    width: 300,
+    height: 200,
   },
 });
 

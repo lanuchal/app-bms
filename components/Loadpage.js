@@ -5,10 +5,10 @@ import { View, Text,ActivityIndicator } from "react-native";
 const Loadpage = ()=>{
   return(
      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 18, marginBottom: 10, color: '#671eee' }}>
+        <Text style={{ fontSize: 18, marginBottom: 10, color: '#448fff' }}>
           loading
         </Text>
-        <ActivityIndicator size="large" color="#671eee" />
+        <ActivityIndicator size="large" color="#448fff" />
       </View>
   )
 }

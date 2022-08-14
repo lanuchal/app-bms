@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   btn_time: {
-    backgroundColor: "#00a589",
+    backgroundColor: "#448fff",
     height: 40,
     textAlign: "center",
     display: "flex",
