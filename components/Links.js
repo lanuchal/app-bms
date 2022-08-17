@@ -5,7 +5,9 @@ import DateRangePicker from "react-native-daterange-picker";
 import Speedometer from "react-native-speedometer-chart";
 import axios from "axios";
 import { LineChart } from "react-native-chart-kit";
-import { api } from "../constants/Api";
+//import { api } from "../constants/Api";
+import{ api_main } from "../constants/api_main";
+import{ api_path } from "../constants/api_path";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -66,7 +68,7 @@ const Links = ({ route }) => {
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
     await axios
-      .get(api.brix + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_main.main_brix+api_path.brix + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         setBrix(response.data.data[0].value);
       })
@@ -95,7 +97,7 @@ const Links = ({ route }) => {
       });
     // min
     await axios
-      .get(api.brixmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.brixmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         // console.log(response.data);
         setBrix_min(response.data.data[0].value);
@@ -105,7 +107,7 @@ const Links = ({ route }) => {
       });
     // avg
     await axios
-      .get(api.brixavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.brixavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         // console.log(response.data);
         setBrix_avg(response.data.data[0].value);
@@ -115,7 +117,7 @@ const Links = ({ route }) => {
       });
     // max
     await axios
-      .get(api.brixmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.brixmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         setBrix_max(response.data.data[0].value);
       })
@@ -131,7 +133,7 @@ const Links = ({ route }) => {
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
     await axios
-      .get(api.temp + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.temp + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         setTemp(response.data.data[0].value);
       })
@@ -160,7 +162,7 @@ const Links = ({ route }) => {
       });
     // min
     await axios
-      .get(api.tempmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.tempmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         // console.log(response.data);
         setTemp_min(response.data.data[0].value);
@@ -170,7 +172,7 @@ const Links = ({ route }) => {
       });
     // avg
     await axios
-      .get(api.tempavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.tempavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         // console.log(response.data);
         setTemp_avg(response.data.data[0].value);
@@ -180,7 +182,7 @@ const Links = ({ route }) => {
       });
     // max
     await axios
-      .get(api.tempmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(api_main.main_brix+api_path.tempmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
       .then(function (response) {
         // console.log(response.data);
         setTemp_max(response.data.data[0].value);
@@ -198,7 +200,7 @@ const Links = ({ route }) => {
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
     await axios
       .get(
-        api.brixline +
+        api_main.main_brix+api_path.brixline +
           itemId +
           "/" +
           resultdateStart +
@@ -225,7 +227,7 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api.brixlinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix+api_path.brixlinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].min;
@@ -243,7 +245,7 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api.brixlinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix+api_path.brixlinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].max;
@@ -270,7 +272,7 @@ const Links = ({ route }) => {
 
     await axios
       .get(
-        api.templinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix+api_path.templinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].min;
@@ -289,7 +291,7 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api.templinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix+api_path.templinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].max;
@@ -308,7 +310,7 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api.templine +
+        api_main.main_brix+api_path.templine +
           itemId +
           "/" +
           resultdateStart +

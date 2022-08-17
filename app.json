@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Brix Monitoring System (BMS)",
-    "slug": "Brix Monitoring System (BMS)",
-    "version": "1.0.0",
+    "slug": "bmsapp",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,13 +21,31 @@
       "supportsTablet": true
     },
     "android": {
+      "buildType": "apk",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package":"com.bmsapp.myapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "build": {
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "preview2": {
+        "android": {
+          "gradleCommand": ":app:assembleRelease"
+        }
+      },
+      "preview3": {
+        "developmentClient": true
+      },
+      "production": {}
     }
   }
 }
