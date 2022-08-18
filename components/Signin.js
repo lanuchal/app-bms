@@ -13,8 +13,8 @@ import { ThemeProvider, Button, Input, Text } from "react-native-elements";
 import axios from "axios";
 import Icon from "react-native-vector-icons/FontAwesome";
 //import { api } from "../constants/Api";
-import { api_main } from "../constants/api_main";
-import { api_path } from "../constants/api_path";
+import { api_main } from "../constants/Api_main";
+import { api_path } from "../constants/Api_path";
 import { AuthContext } from "../constants/Context";
 import Loadpage from "./Loadpage";
 import { Dimensions } from "react-native";
@@ -39,7 +39,7 @@ const Signin = ({ route, navigate, navigation }) => {
   const { signIn, setUserID, home } = useContext(AuthContext);
 
   const registerUser = (data) => {
-    return fetch(api_main.main_login+api_path.main  ,{
+    return fetch(api_main.main_login + api_path.login, {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
@@ -128,9 +128,8 @@ const Signin = ({ route, navigate, navigation }) => {
         </Text>
       </View>
       <View style={styles.box}>
-        
         <ScrollView style={styles.container}>
-        <View
+          <View
             style={{
               display: "flex",
               flexDirection: "row",
@@ -210,7 +209,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   tinyLogo: {
-
     width: 300,
     height: 200,
   },

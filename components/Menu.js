@@ -1,4 +1,10 @@
-import { View, Text, Alert, TouchableHighlight,Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  TouchableHighlight,
+  Dimensions,
+} from "react-native";
 import React, { useEffect, useContext, useState } from "react";
 import { Button } from "react-native-elements";
 import { createDrawerNavigator } from "@react-navigation/drawer";
@@ -90,7 +96,19 @@ const Menu = () => {
   };
   return (
     <NavigationContainer>
-      <Drawer.Navigator useLegacyImplementation initialRouteName="Home">
+      <Drawer.Navigator
+        useLegacyImplementation
+        initialRouteName="Home"
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: "#215199",
+          },
+          headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
+        }}
+      >
         {product.map((index, key) => {
           return (
             <Drawer.Screen
@@ -100,23 +118,23 @@ const Menu = () => {
               initialParams={{ itemId: index.id }}
               options={{
                 headerRight: () => (
-                    <Button
-                      type="clear"
-                      // containerStyle={{ margin: 5 }}
-                      disabledStyle={{
-                        borderWidth: 2,
-                        borderColor: "#00F",
-                      }}
-                      disabledTitleStyle={{ color: "#00F" }}
-                      linearGradientProps={null}
-                      icon={<Icon name="sign-out" size={22} />}
-                      iconContainerStyle={{ background: "#000" }}
-                      loadingProps={{ animating: true }}
-                      loadingStyle={{}}
-                      onPress={() => signOut_func()}
-                      title=" "
-                      titleStyle={{ marginHorizontal: 1 }}
-                    />
+                  <Button
+                    type="clear"
+                    // containerStyle={{ margin: 5 }}
+                    disabledStyle={{
+                      borderWidth: 2,
+                      borderColor: "#fff",
+                    }}
+                    disabledTitleStyle={{ color: "#fff" }}
+                    linearGradientProps={null}
+                    icon={<Icon name="sign-out" size={22} color="#fff"/>}
+                    iconContainerStyle={{ background: "#fff" }}
+                    loadingProps={{ animating: true }}
+                    loadingStyle={{}}
+                    onPress={() => signOut_func()}
+                    title=" "
+                    titleStyle={{ marginHorizontal: 1 }}
+                  />
                 ),
               }}
             />

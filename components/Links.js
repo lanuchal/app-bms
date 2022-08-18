@@ -6,8 +6,10 @@ import Speedometer from "react-native-speedometer-chart";
 import axios from "axios";
 import { LineChart } from "react-native-chart-kit";
 //import { api } from "../constants/Api";
-import{ api_main } from "../constants/api_main";
-import{ api_path } from "../constants/api_path";
+import { api_main } from "../constants/Api_main";
+import { api_path } from "../constants/Api_path";
+
+import RNPickerSelect from "react-native-picker-select";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -39,6 +41,19 @@ const Links = ({ route }) => {
   const [temp_line_min, setTemp_line_max] = useState(0);
   const [temp_y, setTemp_y] = useState(0);
 
+  const [time_select, setTime_select] = useState("5m");
+
+  const time_data = [
+    { label: "time", value: "5m" },
+    { label: "5m", value: "5m" },
+    { label: "10m", value: "10m" },
+    { label: "30m", value: "30m" },
+    { label: "1h", value: "1h" },
+    { label: "6h", value: "6h" },
+    { label: "1d", value: "1d" },
+    { label: "7d", value: "7d" },
+  ];
+
   const [dateRange, setDateRange] = useState({
     startDate: moment(),
     endDate: moment(),
@@ -67,8 +82,26 @@ const Links = ({ route }) => {
     const dateEnd = JSON.stringify(end);
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
+    console.log(
+      "api",
+      api_main.main_brix +
+        api_path.brix +
+        itemId +
+        "/" +
+        resultdateStart +
+        "/" +
+        resultdateEnd
+    );
     await axios
-      .get(api_main.main_brix+api_main.main_brix+api_path.brix + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.brix +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         setBrix(response.data.data[0].value);
       })
@@ -97,7 +130,15 @@ const Links = ({ route }) => {
       });
     // min
     await axios
-      .get(api_main.main_brix+api_path.brixmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.brixmin +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         // console.log(response.data);
         setBrix_min(response.data.data[0].value);
@@ -107,7 +148,15 @@ const Links = ({ route }) => {
       });
     // avg
     await axios
-      .get(api_main.main_brix+api_path.brixavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.brixavg +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         // console.log(response.data);
         setBrix_avg(response.data.data[0].value);
@@ -117,7 +166,15 @@ const Links = ({ route }) => {
       });
     // max
     await axios
-      .get(api_main.main_brix+api_path.brixmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.brixmax +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         setBrix_max(response.data.data[0].value);
       })
@@ -133,7 +190,15 @@ const Links = ({ route }) => {
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
     await axios
-      .get(api_main.main_brix+api_path.temp + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.temp +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         setTemp(response.data.data[0].value);
       })
@@ -162,7 +227,15 @@ const Links = ({ route }) => {
       });
     // min
     await axios
-      .get(api_main.main_brix+api_path.tempmin + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.tempmin +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         // console.log(response.data);
         setTemp_min(response.data.data[0].value);
@@ -172,7 +245,15 @@ const Links = ({ route }) => {
       });
     // avg
     await axios
-      .get(api_main.main_brix+api_path.tempavg + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.tempavg +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         // console.log(response.data);
         setTemp_avg(response.data.data[0].value);
@@ -182,7 +263,15 @@ const Links = ({ route }) => {
       });
     // max
     await axios
-      .get(api_main.main_brix+api_path.tempmax + itemId + "/" + resultdateStart + "/" + resultdateEnd)
+      .get(
+        api_main.main_brix +
+          api_path.tempmax +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
+      )
       .then(function (response) {
         // console.log(response.data);
         setTemp_max(response.data.data[0].value);
@@ -200,13 +289,15 @@ const Links = ({ route }) => {
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
     await axios
       .get(
-        api_main.main_brix+api_path.brixline +
+        api_main.main_brix +
+          api_path.brixline +
           itemId +
           "/" +
           resultdateStart +
           "/" +
           resultdateEnd +
-          "/5m"
+          "/" +
+          time_select
       )
       .then(function (response) {
         const data_array = response.data.data;
@@ -227,7 +318,13 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api_main.main_brix+api_path.brixlinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix +
+          api_path.brixlinemin +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].min;
@@ -245,7 +342,13 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api_main.main_brix+api_path.brixlinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix +
+          api_path.brixlinemax +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].max;
@@ -272,7 +375,13 @@ const Links = ({ route }) => {
 
     await axios
       .get(
-        api_main.main_brix+api_path.templinemin + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix +
+          api_path.templinemin +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].min;
@@ -291,7 +400,13 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api_main.main_brix+api_path.templinemax + itemId + "/" + resultdateStart + "/" + resultdateEnd
+        api_main.main_brix +
+          api_path.templinemax +
+          itemId +
+          "/" +
+          resultdateStart +
+          "/" +
+          resultdateEnd
       )
       .then(function (response) {
         const data = response.data.data[0].max;
@@ -310,13 +425,15 @@ const Links = ({ route }) => {
       });
     await axios
       .get(
-        api_main.main_brix+api_path.templine +
+        api_main.main_brix +
+          api_path.templine +
           itemId +
           "/" +
           resultdateStart +
           "/" +
           resultdateEnd +
-          "/5m"
+          "/" +
+          time_select
       )
       .then(function (response) {
         const data = response.data.data[0].value;
@@ -351,7 +468,7 @@ const Links = ({ route }) => {
   }
 
   return (
-    <View style={{ backgroundColor: "#fff", paddingTop: 5 }}>
+    <View style={{ backgroundColor: "#215199", paddingTop: 10 }}>
       <DateRangePicker
         onChange={(e) => onChangeDate(e)}
         endDate={dateRange.endDate}
@@ -360,18 +477,65 @@ const Links = ({ route }) => {
         range
       >
         <View style={styles.btn_time}>
-          <Text style={{ fontSize: 30, color: "#fff" }}>select date</Text>
+          <Text style={{ fontSize: 16, color: "#000" }}>date</Text>
         </View>
       </DateRangePicker>
+      <View
+        style={{
+          width: "80%",
+          padding: 0,
+          paddingLeft: 20,
+          display: "flex",
+          flexDirection: "row",
+          // justifyContent:'space-between',
+          alignItems: "center",
+          paddingBottom: 10,
+          backgroundColor: "#215199",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            color: "#fff",
+            marginLeft: 30,
+            flexGrow: 1,
+          }}
+        >
+          select date and time ...
+        </Text>
+        <View
+          style={{
+            backgroundColor: "#448fff",
+            width: "20%",
+            padding: 13,
+            textAlign: "center",
+            borderRadius: 6,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          <RNPickerSelect
+            value={time_select}
+            onValueChange={(value) => setTime_select(value)}
+            items={time_data}
+            color="#fff"
+          />
+        </View>
+      </View>
+      {/* </View> */}
+
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
           {/* chart value 1*/}
-          <View style={styles.box_chart}>
+          <View style={styles.box_chart1}>
             <Text
               style={{
                 fontSize: 20,
                 fontWeight: "600",
                 marginBottom: 5,
+                color: "#fff",
+                // backgroundColor:"#006b4b93",
               }}
             >
               Brix Chart
@@ -411,12 +575,12 @@ const Links = ({ route }) => {
               height={220}
               yAxisInterval={2} // optional, defaults to 1
               chartConfig={{
-                backgroundColor: "#e26a00",
-                backgroundGradientFrom: "#1b4900",
-                backgroundGradientTo: "#2e9933",
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               }}
               // bezier
               style={{
@@ -427,12 +591,13 @@ const Links = ({ route }) => {
           </View>
 
           {/* chart value 2*/}
-          <View style={styles.box_chart}>
+          <View style={styles.box_chart2}>
             <Text
               style={{
                 fontSize: 20,
                 fontWeight: "600",
                 marginBottom: 5,
+                color: "#fff",
               }}
             >
               Temp Chart
@@ -474,12 +639,12 @@ const Links = ({ route }) => {
               yAxisInterval={2} // optional, defaults to 1
               chartConfig={{
                 paddingTop: 20,
-                backgroundColor: "#e26a00",
-                backgroundGradientFrom: "#000b49",
-                backgroundGradientTo: "#5762c5",
+                backgroundColor: "#fff",
+                backgroundGradientFrom: "#fff",
+                backgroundGradientTo: "#fff",
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 margin: 0,
                 // propsForDots: {
                 //   r: "4",
@@ -493,121 +658,173 @@ const Links = ({ route }) => {
               }}
             />
           </View>
-
-          {/* gauge value */}
-          <View style={styles.box}>
+          <View style={styles.box_chart3}>
+            {/* gauge value */}
             <Text
               style={{
-                textAlign: "left",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                display: "flex",
-                flexDirection: "row",
                 fontSize: 20,
-                width: windowWidth - 70,
                 fontWeight: "600",
+                marginBottom: 5,
+                color: "#fff",
+                // color:"#2596ff"
               }}
             >
               Brix (%)
             </Text>
-            <Speedometer
-              value={brix}
-              totalValue={100}
-              size={windowWidth - 70}
-              showIndicator
-              outerColor="#e6e6e6"
-              internalColor={rangColor}
-            />
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "600",
-                marginTop: 5,
-              }}
-            >
-              Brix : {brix} % ( {data_result} )
-            </Text>
-          </View>
+            <View style={styles.box}>
+              <Speedometer
+                value={brix}
+                totalValue={100}
+                size={windowWidth - 70}
+                showIndicator={true}
+                // outerColor="#fff"
+                internalColor={rangColor}
+                // innerColor="#292d4e00"
+                indicatorColor="#fff"
+              />
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  marginTop: 5,
+                  // color:"#2596ff"
+                }}
+              >
+                Brix : {brix} % ( {data_result} )
+              </Text>
 
+              <View style={styles.box2}>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_min}>
+                    <Text>MIN.</Text>
+                  </View>
+                  <Text style={styles.text_}>{brix_min} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_avg}>
+                    <Text>AVG.</Text>
+                  </View>
+
+                  <Text style={styles.text_}>{brix_avg} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_max}>
+                    <Text>MAX.</Text>
+                  </View>
+                  <Text style={styles.text_}>{brix_max} %</Text>
+                </View>
+              </View>
+            </View>
+          </View>
           {/* 3 value part1 */}
-          <View style={styles.box2}>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_min}>
-                <Text>MIN.</Text>
-              </View>
-              <Text style={styles.text_}>{brix_min} %</Text>
-            </View>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_avg}>
-                <Text>AVG.</Text>
-              </View>
-
-              <Text style={styles.text_}>{brix_avg} %</Text>
-            </View>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_max}>
-                <Text>MAX.</Text>
-              </View>
-              <Text style={styles.text_}>{brix_max} %</Text>
-            </View>
-          </View>
-
-          {/* temp value */}
-          <View style={styles.box}>
+          <View style={styles.box_chart4}>
+            {/* gauge value */}
             <Text
               style={{
-                textAlign: "left",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                display: "flex",
-                flexDirection: "row",
                 fontSize: 20,
-                width: windowWidth - 70,
                 fontWeight: "600",
+                marginBottom: 5,
+                color: "#fff",
+                // color:"#2596ff"
               }}
             >
               Temp (°C)
             </Text>
-            <Speedometer
-              value={temp}
-              totalValue={100}
-              size={windowWidth - 70}
-              showIndicator
-              outerColor="#e6e6e6"
-              internalColor={rangColor_temp}
-            />
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: "600",
-                marginTop: 5,
-              }}
-            >
-              Temp : {temp} °C ( {data_result_temp} )
-            </Text>
-          </View>
-          {/* 3 value part2 */}
-          <View style={styles.box2}>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_min}>
-                <Text>MIN.</Text>
-              </View>
-              <Text style={styles.text_}>{temp_min} %</Text>
-            </View>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_avg}>
-                <Text>AVG.</Text>
-              </View>
+            <View style={styles.box}>
+              <Speedometer
+                value={temp}
+                totalValue={100}
+                size={windowWidth - 70}
+                showIndicator={true}
+                // outerColor="#fff"
+                internalColor={rangColor}
+                // innerColor="#292d4e00"
+                indicatorColor="#fff"
+              />
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  marginTop: 5,
+                  // color:"#2596ff"
+                }}
+              >
+                Temp : {temp} °C ( {data_result_temp} )
+              </Text>
 
-              <Text style={styles.text_}>{temp_avg} %</Text>
-            </View>
-            <View style={styles.box_avg}>
-              <View style={styles.txt_max}>
-                <Text>MAX.</Text>
+              <View style={styles.box2}>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_min}>
+                    <Text>MIN.</Text>
+                  </View>
+                  <Text style={styles.text_}>{temp_min} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_avg}>
+                    <Text>AVG.</Text>
+                  </View>
+
+                  <Text style={styles.text_}>{temp_avg} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_max}>
+                    <Text>MAX.</Text>
+                  </View>
+                  <Text style={styles.text_}>{temp_max} %</Text>
+                </View>
               </View>
-              <Text style={styles.text_}>{temp_max} %</Text>
             </View>
           </View>
+          {/* temp value */}
+          {/* <View style={styles.box_chart4}>
+           
+            <View style={styles.box}>
+              <Speedometer
+                value={temp}
+                totalValue={100}
+                size={windowWidth - 70}
+                showIndicator
+                outerColor="#e6e6e6"
+                // outerColor="#fff"
+                internalColor={rangColor}
+                // innerColor="#292d4e00"
+                indicatorColor="#fff"
+              />
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  marginTop: 5,
+                  // color:"#2596ff"
+                }}
+              >
+                Temp : {temp} °C ( {data_result_temp} )
+              </Text>
+
+              <View style={styles.box2}>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_min}>
+                    <Text>MIN.</Text>
+                  </View>
+                  <Text style={styles.text_}>{temp_min} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_avg}>
+                    <Text>AVG.</Text>
+                  </View>
+
+                  <Text style={styles.text_}>{temp_avg} %</Text>
+                </View>
+                <View style={styles.box_avg}>
+                  <View style={styles.txt_max}>
+                    <Text>MAX.</Text>
+                  </View>
+                  <Text style={styles.text_}>{temp_max} %</Text>
+                </View>
+              </View>
+            </View>
+          </View> */}
+          {/* 3 value part2 */}
         </View>
       </ScrollView>
     </View>
@@ -624,11 +841,14 @@ const styles = StyleSheet.create({
     // position:"relative",
   },
   scrollView: {
-    paddingTop: 10,
     paddingBottom: 20,
     marginBottom: 50,
   },
   btn_time: {
+    position: "absolute",
+    zIndex: 10,
+    right: 0,
+    width: "15%",
     backgroundColor: "#448fff",
     height: 40,
     textAlign: "center",
@@ -637,20 +857,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 5,
-    borderRadius: 16,
+    borderRadius: 5,
     marginLeft: 10,
     marginRight: 10,
     marginBottom: 5,
   },
-  box_chart: {
+  box_chart1: {
+    backgroundColor: "#006b0593",
     marginBottom: 10,
     display: "flex",
     flexDirection: "col",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: "#fff",
     paddingTop: 10,
+    width:windowWidth-20
+  },
+  box_chart2: {
+    backgroundColor: "#000b6b93",
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "col",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    paddingTop: 10,
+    width:windowWidth-20
+  },
+  box_chart3: {
+    backgroundColor: "#23767c93",
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "col",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    paddingTop: 10,
+    width:windowWidth-20
+  },
+  box_chart4: {
+    backgroundColor: "#7c232393",
+    marginBottom: 10,
+    display: "flex",
+    flexDirection: "col",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    paddingTop: 10,
+    width:windowWidth-20
   },
   box: {
     width: "100%",
@@ -660,7 +914,6 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
   },
   box2: {
     padding: 10,
@@ -671,10 +924,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderColor: "#e6e6e6",
-    border: 5,
-    marginBottom: 10,
-    borderWidth: 1,
+    marginTop: 10,
   },
   box_avg: {
     display: "flex",
