@@ -115,7 +115,7 @@ const Menu = () => {
               key={key}
               name={index.names}
               component={Links}
-              initialParams={{ itemId: index.id }}
+              initialParams={{ itemId: index.id, state_load: true }}
               options={{
                 headerRight: () => (
                   <Button
@@ -127,7 +127,7 @@ const Menu = () => {
                     }}
                     disabledTitleStyle={{ color: "#fff" }}
                     linearGradientProps={null}
-                    icon={<Icon name="sign-out" size={22} color="#fff"/>}
+                    icon={<Icon name="sign-out" size={22} color="#fff" />}
                     iconContainerStyle={{ background: "#fff" }}
                     loadingProps={{ animating: true }}
                     loadingStyle={{}}

@@ -9,11 +9,16 @@ import { LineChart } from "react-native-chart-kit";
 import { api_main } from "../constants/Api_main";
 import { api_path } from "../constants/Api_path";
 
+// import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import RNPickerSelect from "react-native-picker-select";
+import Brix from "./brixline/Brix";
 
+import Loadpage from "./Loadpage";
 const windowWidth = Dimensions.get("window").width;
 
-const Links = ({ route }) => {
+const Links = ({ route, navigation }) => {
+  const [isLoading_log, setIsLoading_log] = useState(navigation ? true : false);
+
   const { itemId } = route.params;
   const [gagueValue, setGagueValue] = useState(50);
   // set min max brix
@@ -60,21 +65,42 @@ const Links = ({ route }) => {
   });
   const [displayedDate, setDisplayedDate] = useState(moment());
 
+  const [start_date, setStart_date] = useState(moment());
+  const [end_date, setEnd_date] = useState(moment());
+
   const onChangeDate = (dates) => {
     setDateRange((dateRange) => ({
       ...dateRange,
       ...dates,
     }));
+
     dates.displayedDate ? setDisplayedDate(dates.displayedDate) : undefined;
+    setEnd_date(dates.endDate);
+    setStart_date(dates.startDate);
+
+    if (dates.endDate) {
+      get_brix(dateRange.startDate, dates.endDate);
+      get_temp(dateRange.startDate, dates.endDate);
+      get_brixline(dateRange.startDate, dates.endDate);
+      get_templine(dateRange.startDate, dates.endDate);
+    }
   };
 
+  console.log();
   useEffect(() => {
-    get_brix(dateRange.startDate, dateRange.endDate);
-    get_temp(dateRange.startDate, dateRange.endDate);
-    get_brixline(dateRange.startDate, dateRange.endDate);
-    get_templine(dateRange.startDate, dateRange.endDate);
-    // get_brix_min(dateRange.startDate, dateRange.endDate);
-  }, [dateRange]);
+    const unsubscribe = navigation.addListener("focus", () => {
+      setIsLoading_log(true);
+      setDateRange({
+        startDate: moment(),
+        endDate: moment(),
+      });
+      get_brix(dateRange.startDate, dateRange.endDate);
+      setTimeout(() => {
+        setIsLoading_log(false);
+      }, 200);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // get brix ////////////////////////////////////////////////////////////////////////////
   const get_brix = async (start, end) => {
@@ -82,104 +108,91 @@ const Links = ({ route }) => {
     const dateEnd = JSON.stringify(end);
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
-    console.log(
-      "api",
+    const URL1 =
       api_main.main_brix +
-        api_path.brix +
-        itemId +
-        "/" +
-        resultdateStart +
-        "/" +
-        resultdateEnd
-    );
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brix +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        setBrix(response.data.data[0].value);
-      })
-      .then(() => {
-        setRangeColor(() => {
-          if (brix <= 33) {
-            return "#f3f72f";
-          } else if (brix >= 34 && brix <= 66) {
-            return "#00b928";
-          } else {
-            return "#c71d1d";
+      api_path.brix +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const URL2 =
+      api_main.main_brix +
+      api_path.brixmin +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const URL3 =
+      api_main.main_brix +
+      api_path.brixavg +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const URL4 =
+      api_main.main_brix +
+      api_path.brixmax +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const promise1 = await axios.get(URL1);
+    const promise2 = await axios.get(URL2);
+    const promise3 = await axios.get(URL3);
+    const promise4 = await axios.get(URL4);
+
+    axios
+      .all([promise1, promise2, promise3, promise4])
+      .then(
+        axios.spread((...x) => {
+          if (x[0].data.data[0]) {
+            // console.log(x[0].data.data[0].value);
+            setBrix(x[0].data.data[0].value);
+            setTimeout(() => {
+              setRangeColor(() => {
+                if (brix <= 33) {
+                  return "#f3f72f";
+                } else if (brix >= 34 && brix <= 66) {
+                  return "#00b928";
+                } else {
+                  return "#c71d1d";
+                }
+              });
+
+              setData_result(() => {
+                if (brix <= 33) {
+                  return "LOW";
+                } else if (brix >= 34 && brix <= 66) {
+                  return "OK";
+                } else {
+                  return "HIGH";
+                }
+              });
+            }, 100);
           }
-        });
-        setData_result(() => {
-          if (brix <= 33) {
-            return "LOW";
-          } else if (brix >= 34 && brix <= 66) {
-            return "OK";
-          } else {
-            return "HIGH";
+
+          // brix min
+          if (x[1].data.data[0]) {
+            setBrix_min(x[1].data.data[0].value);
           }
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // min
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixmin +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
+          if (x[2].data.data[0]) {
+            setBrix_avg(x[2].data.data[0].value);
+          }
+          if (x[3].data.data[0]) {
+            setBrix_max(x[3].data.data[0].value);
+          }
+        })
       )
-      .then(function (response) {
-        // console.log(response.data);
-        setBrix_min(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // avg
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixavg +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        // console.log(response.data);
-        setBrix_avg(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // max
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixmax +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        setBrix_max(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
+      .catch((errors) => {
+        console.error(errors);
       });
   };
 
@@ -189,95 +202,94 @@ const Links = ({ route }) => {
     const dateEnd = JSON.stringify(end);
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.temp +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        setTemp(response.data.data[0].value);
-      })
-      .then(() => {
-        setRangeColor_temp(() => {
-          if (brix <= 33) {
-            return "#f3f72f";
-          } else if (brix >= 34 && brix <= 66) {
-            return "#00b928";
-          } else {
-            return "#c71d1d";
+
+    let URL1 =
+      api_main.main_brix +
+      api_path.temp +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL2 =
+      api_main.main_brix +
+      api_path.tempmin +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL3 =
+      api_main.main_brix +
+      api_path.tempavg +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL4 =
+      api_main.main_brix +
+      api_path.tempmax +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const promise1 = await axios.get(URL1);
+    const promise2 = await axios.get(URL2);
+    const promise3 = await axios.get(URL3);
+    const promise4 = await axios.get(URL4);
+
+    axios
+      .all([promise1, promise2, promise3, promise4])
+      .then(
+        axios.spread((...x) => {
+          // console.log(x[0].data);
+
+          if (x[0].data.data[0]) {
+            // console.log(x[0].data.data[0].value);
+            setTemp(x[0].data.data[0].value);
+            setTimeout(() => {
+              setRangeColor_temp(() => {
+                if (brix <= 33) {
+                  return "#f3f72f";
+                } else if (brix >= 34 && brix <= 66) {
+                  return "#00b928";
+                } else {
+                  return "#c71d1d";
+                }
+              });
+              setData_result_temp(() => {
+                if (brix <= 33) {
+                  return "LOW";
+                } else if (brix >= 34 && brix <= 66) {
+                  return "OK";
+                } else {
+                  return "HIGH";
+                }
+              });
+            }, 120);
           }
-        });
-        setData_result_temp(() => {
-          if (brix <= 33) {
-            return "LOW";
-          } else if (brix >= 34 && brix <= 66) {
-            return "OK";
-          } else {
-            return "HIGH";
+          if (x[1].data.data[0]) {
+            // console.log(x[1].data.data[0].value);
+            setTemp_min(x[1].data.data[0].value);
           }
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // min
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.tempmin +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
+          if (x[2].data.data[0]) {
+            // console.log(x[2].data.data[0].value);
+            setTemp_avg(x[2].data.data[0].value);
+          }
+          if (x[3].data.data[0]) {
+            // console.log(x[3].data.data[0].value);
+            setTemp_max(x[3].data.data[0].value);
+          }
+        })
       )
-      .then(function (response) {
-        // console.log(response.data);
-        setTemp_min(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // avg
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.tempavg +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        // console.log(response.data);
-        setTemp_avg(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    // max
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.tempmax +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        // console.log(response.data);
-        setTemp_max(response.data.data[0].value);
-      })
-      .catch(function (error) {
-        console.log(error);
+      .catch((errors) => {
+        console.error(errors);
       });
   };
 
@@ -287,82 +299,82 @@ const Links = ({ route }) => {
     const dateEnd = JSON.stringify(end);
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixline +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd +
-          "/" +
-          time_select
-      )
-      .then(function (response) {
-        const data_array = response.data.data;
-        setBrix_line(
-          data_array.map((index) => {
-            return index.value;
-          })
-        );
-        setBrix_y(
-          data_array.map((index) => {
-            return convertDate(index.time);
-          })
-        );
-        // console.log(brix_y);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixlinemin +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        const data = response.data.data[0].min;
-        const data_array = response.data.data;
-        data
-          ? setBrix_line_min(
+
+    let URL1 =
+      api_main.main_brix +
+      api_path.brixline +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd +
+      "/" +
+      time_select;
+
+    let URL2 =
+      api_main.main_brix +
+      api_path.brixlinemin +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL3 =
+      api_main.main_brix +
+      api_path.brixlinemax +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    const promise1 = await axios.get(URL1);
+    const promise2 = await axios.get(URL2);
+    const promise3 = await axios.get(URL3);
+
+    axios
+      .all([promise1, promise2, promise3])
+      .then(
+        axios.spread((...x) => {
+          // console.log("get_brixlinex", x[0].data);
+
+          if (x[0].data) {
+            const data_array = x[0].data.data;
+            // console.log("data0", data_array);
+            setBrix_line(
+              data_array.map((index) => {
+                return index.value;
+              })
+            );
+            setBrix_y(
+              data_array.map((index) => {
+                return convertDate(index.time);
+              })
+            );
+          }
+          if (x[1].data.data[0]) {
+            const data_array = x[1].data.data;
+            // console.log("data1", data_array);
+            setBrix_line_min(
               data_array.map((index) => {
                 return index.min;
               })
-            )
-          : undefined;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.brixlinemax +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        const data = response.data.data[0].max;
-        const data_array = response.data.data;
-        data
-          ? setBrix_line_max(
+            );
+          }
+          if (x[2].data.data[0]) {
+            const data_array = x[2].data.data;
+            // console.log("data2", data_array);
+            setBrix_line_max(
               data_array.map((index) => {
                 return index.max;
               })
-            )
-          : undefined;
-      })
-      .catch(function (error) {
-        console.log(error);
+            );
+          }
+        })
+      )
+      .catch((errors) => {
+        console.error(errors);
       });
   };
 
@@ -373,89 +385,132 @@ const Links = ({ route }) => {
     const resultdateStart = dateStart.slice(1, dateStart.length - 1);
     const resultdateEnd = dateEnd.slice(1, dateEnd.length - 1);
 
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.templinemin +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        const data = response.data.data[0].min;
-        const data_array = response.data.data;
-        console.log("tempmin", data_array);
-        data
-          ? setTemp_line_min(
+    let URL1 =
+      api_main.main_brix +
+      api_path.templinemin +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL2 =
+      api_main.main_brix +
+      api_path.templinemax +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd;
+
+    let URL3 =
+      api_main.main_brix +
+      api_path.templine +
+      itemId +
+      "/" +
+      resultdateStart +
+      "/" +
+      resultdateEnd +
+      "/" +
+      time_select;
+
+    const promise1 = await axios.get(URL1);
+    const promise2 = await axios.get(URL2);
+    const promise3 = await axios.get(URL3);
+
+    axios
+      .all([promise1, promise2, promise3])
+      .then(
+        axios.spread((...x) => {
+          // console.log("get_brixlinex", x[0].data);
+
+          if (x[0].data) {
+            const data_array = x[0].data.data;
+            console.log("data0", data_array);
+            setTemp_line_min(
               data_array.map((index) => {
                 return index.min;
               })
-            )
-          : undefined;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.templinemax +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd
-      )
-      .then(function (response) {
-        const data = response.data.data[0].max;
-        const data_array = response.data.data;
-        console.log("tempmax", data_array);
-        data
-          ? setTemp_line_max(
+            );
+            // setBrix_line(
+            //   data_array.map((index) => {
+            //     return index.value;
+            //   })
+            // );
+            // setBrix_y(
+            //   data_array.map((index) => {
+            //     return convertDate(index.time);
+            //   })
+            // );
+            //     const data = response.data.data[0].min;
+            // const data_array = response.data.data;
+            // console.log("tempmin", data_array);
+            // data
+            //   ?
+            //   : undefined;
+          }
+          if (x[1].data.data[0]) {
+            const data_array = x[1].data.data;
+            console.log("data1", data_array);
+            setTemp_line_max(
               data_array.map((index) => {
                 return index.max;
               })
-            )
-          : undefined;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-    await axios
-      .get(
-        api_main.main_brix +
-          api_path.templine +
-          itemId +
-          "/" +
-          resultdateStart +
-          "/" +
-          resultdateEnd +
-          "/" +
-          time_select
-      )
-      .then(function (response) {
-        const data = response.data.data[0].value;
-        const data_array = response.data.data;
-        console.log("templine", data_array);
-        data
-          ? setTemp_line(
+            );
+            //     const data = response.data.data[0].max;
+            // const data_array = response.data.data;
+            // console.log("tempmax", data_array);
+            // data
+            //   ? setTemp_line_max(
+            //       data_array.map((index) => {
+            //         return index.max;
+            //       })
+            //     )
+            //   : undefined;
+          }
+          if (x[2].data.data[0]) {
+            const data_array = x[2].data.data;
+            console.log("data2", data_array);
+            setTemp_line(
               data_array.map((index) => {
                 return index.value;
               })
-            )
-          : undefined;
-        data
-          ? setTemp_y(
+            );
+            setTemp_y(
               data_array.map((index) => {
                 return convertDate(index.time);
               })
-            )
-          : undefined;
-      })
-      .catch(function (error) {
-        console.log(error);
+            );
+            // setBrix_line_max(
+            //   data_array.map((index) => {
+            //     return index.max;
+            //   })
+            // );
+            //   const data = response.data.data[0].value
+            //   ? response.data.data[0].value
+            //   : null;
+            // const data_array = response.data.data ? response.data.data : null;
+
+            // console.log("templine", data_array);
+            // data
+            //   ? setTemp_line(
+            //       data_array.map((index) => {
+            //         return index.value;
+            //       })
+            //     )
+            //   : undefined;
+            // data
+            //   ? setTemp_y(
+            //       data_array.map((index) => {
+            //         return convertDate(index.time);
+            //       })
+            //     )
+            //   : undefined;
+          }
+        })
+      )
+      .catch((errors) => {
+        console.error(errors);
       });
   };
 
@@ -466,7 +521,10 @@ const Links = ({ route }) => {
     var d = new Date(inputFormat);
     return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join("/");
   }
-
+  // console.log("isLoading_log", isLoading_log);
+  if (isLoading_log) {
+    return <Loadpage />;
+  }
   return (
     <View style={{ backgroundColor: "#215199", paddingTop: 10 }}>
       <DateRangePicker
@@ -497,31 +555,27 @@ const Links = ({ route }) => {
           style={{
             fontSize: 20,
             color: "#fff",
-            marginLeft: 30,
+            marginLeft: 10,
             flexGrow: 1,
           }}
         >
           select date and time ...
         </Text>
-        <View
-          style={{
-            backgroundColor: "#448fff",
-            width: "20%",
-            padding: 13,
-            textAlign: "center",
-            borderRadius: 6,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-          }}
-        >
-          <RNPickerSelect
-            value={time_select}
-            onValueChange={(value) => setTime_select(value)}
-            items={time_data}
-            color="#fff"
-          />
-        </View>
+      </View>
+      <View
+        style={{
+          backgroundColor: "#448fff",
+          width: "30%",
+          borderRadius: 6,
+          padding: 0,
+        }}
+      >
+        <RNPickerSelect
+          value={time_select}
+          onValueChange={(value) => setTime_select(value)}
+          items={time_data}
+          color="#fff"
+        />
       </View>
       {/* </View> */}
 
@@ -538,7 +592,7 @@ const Links = ({ route }) => {
                 // backgroundColor:"#006b4b93",
               }}
             >
-              Brix Chart
+              Brix Char t
             </Text>
             <LineChart
               data={{
@@ -589,7 +643,12 @@ const Links = ({ route }) => {
               }}
             />
           </View>
-
+          {/* <Brix
+            start={dateRange.startDate}
+            end={dateRange.endDate}
+            itemI={itemId}
+            time_select={time_select}
+          /> */}
           {/* chart value 2*/}
           <View style={styles.box_chart2}>
             <Text
@@ -850,7 +909,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: "15%",
     backgroundColor: "#448fff",
-    height: 40,
+    height: 53,
     textAlign: "center",
     display: "flex",
     flexDirection: "row",
@@ -866,45 +925,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#006b0593",
     marginBottom: 10,
     display: "flex",
-    flexDirection: "col",
+    // flexDirection: "col",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
     paddingTop: 10,
-    width:windowWidth-20
+    width: windowWidth - 20,
   },
   box_chart2: {
     backgroundColor: "#000b6b93",
     marginBottom: 10,
     display: "flex",
-    flexDirection: "col",
+    // flexDirection: "col",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
     paddingTop: 10,
-    width:windowWidth-20
+    width: windowWidth - 20,
   },
   box_chart3: {
     backgroundColor: "#23767c93",
     marginBottom: 10,
     display: "flex",
-    flexDirection: "col",
+    // flexDirection: "col",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
     paddingTop: 10,
-    width:windowWidth-20
+    width: windowWidth - 20,
   },
   box_chart4: {
     backgroundColor: "#7c232393",
     marginBottom: 10,
     display: "flex",
-    flexDirection: "col",
+    // flexDirection: "col",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
     paddingTop: 10,
-    width:windowWidth-20
+    width: windowWidth - 20,
   },
   box: {
     width: "100%",
