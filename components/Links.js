@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Dimensions, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  ScrollView,
+  LogBox,
+} from "react-native";
 import moment from "moment";
 import DateRangePicker from "react-native-daterange-picker";
 import Speedometer from "react-native-speedometer-chart";
@@ -11,9 +18,12 @@ import { api_path } from "../constants/Api_path";
 
 // import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import RNPickerSelect from "react-native-picker-select";
-import Brix from "./brixline/Brix";
 
 import Loadpage from "./Loadpage";
+
+LogBox.ignoreLogs(["Warning: ..."]); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
+
 const windowWidth = Dimensions.get("window").width;
 
 const Links = ({ route, navigation }) => {
@@ -36,15 +46,15 @@ const Links = ({ route, navigation }) => {
   const [temp_max, setTemp_max] = useState(0);
   const [data_result_temp, setData_result_temp] = useState();
 
-  const [brix_line, setBrix_line] = useState(0);
-  const [brix_line_max, setBrix_line_min] = useState(0);
-  const [brix_line_min, setBrix_line_max] = useState(0);
-  const [brix_y, setBrix_y] = useState(0);
+  const [brix_line, setBrix_line] = useState([0]);
+  const [brix_line_max, setBrix_line_min] = useState([0]);
+  const [brix_line_min, setBrix_line_max] = useState([0]);
+  const [brix_y, setBrix_y] = useState([convertDate(moment())]);
 
-  const [temp_line, setTemp_line] = useState(0);
-  const [temp_line_max, setTemp_line_min] = useState(0);
-  const [temp_line_min, setTemp_line_max] = useState(0);
-  const [temp_y, setTemp_y] = useState(0);
+  const [temp_line, setTemp_line] = useState([0]);
+  const [temp_line_max, setTemp_line_min] = useState([0]);
+  const [temp_line_min, setTemp_line_max] = useState([0]);
+  const [temp_y, setTemp_y] = useState([convertDate(moment())]);
 
   const [time_select, setTime_select] = useState("5m");
 
@@ -77,8 +87,9 @@ const Links = ({ route, navigation }) => {
     dates.displayedDate ? setDisplayedDate(dates.displayedDate) : undefined;
     setEnd_date(dates.endDate);
     setStart_date(dates.startDate);
-
+    console.log(dateRange.startDate + " : " + dates.endDate);
     if (dates.endDate) {
+      console.log("gggggggg");
       get_brix(dateRange.startDate, dates.endDate);
       get_temp(dateRange.startDate, dates.endDate);
       get_brixline(dateRange.startDate, dates.endDate);
@@ -86,18 +97,41 @@ const Links = ({ route, navigation }) => {
     }
   };
 
-  console.log();
+  const onchangeTime = (value) => {
+    setTime_select(value);
+    setTimeout(() => {
+      get_brix(dateRange.startDate, dateRange.endDate);
+      get_temp(dateRange.startDate, dateRange.endDate);
+      get_brixline(dateRange.startDate, dateRange.endDate);
+      get_templine(dateRange.startDate, dateRange.endDate);
+    }, 150);
+  };
+
+  // console.log();
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
+      // setBrix_line([0]);
+      // setBrix_line_min([0]);
+      // setBrix_line_max([0]);
+      // setBrix_y([convertDate(moment())]);
+
+      // setTemp_line_min([0]);
+      // setTemp_line_min([0]);
+      // setTemp_line_max([0]);
+      // setTemp_y([convertDate(moment())]);
+
       setIsLoading_log(true);
       setDateRange({
         startDate: moment(),
         endDate: moment(),
       });
-      get_brix(dateRange.startDate, dateRange.endDate);
       setTimeout(() => {
+        // get_brix(dateRange.startDate, dateRange.endDate);
+        // get_temp(dateRange.startDate, dateRange.endDate);
+        // get_brixline(dateRange.startDate, dateRange.endDate);
+        // get_templine(dateRange.startDate, dateRange.endDate);
         setIsLoading_log(false);
-      }, 200);
+      }, 600);
     });
     return unsubscribe;
   }, [navigation]);
@@ -144,18 +178,22 @@ const Links = ({ route, navigation }) => {
       "/" +
       resultdateEnd;
 
+    console.log("get_brix1 = ", URL1);
+    console.log("get_brix2 = ", URL2);
+    console.log("get_brix3 = ", URL3);
+    console.log("get_brix4 = ", URL4);
     const promise1 = await axios.get(URL1);
     const promise2 = await axios.get(URL2);
     const promise3 = await axios.get(URL3);
     const promise4 = await axios.get(URL4);
 
-    axios
+    await axios
       .all([promise1, promise2, promise3, promise4])
       .then(
         axios.spread((...x) => {
           if (x[0].data.data[0]) {
             // console.log(x[0].data.data[0].value);
-            setBrix(x[0].data.data[0].value);
+            setBrix(parseInt(x[0].data.data[0].value).toFixed(2));
             setTimeout(() => {
               setRangeColor(() => {
                 if (brix <= 33) {
@@ -181,13 +219,13 @@ const Links = ({ route, navigation }) => {
 
           // brix min
           if (x[1].data.data[0]) {
-            setBrix_min(x[1].data.data[0].value);
+            setBrix_min(parseInt(x[1].data.data[0].value).toFixed(2));
           }
           if (x[2].data.data[0]) {
-            setBrix_avg(x[2].data.data[0].value);
+            setBrix_avg(parseInt(x[2].data.data[0].value).toFixed(2));
           }
           if (x[3].data.data[0]) {
-            setBrix_max(x[3].data.data[0].value);
+            setBrix_max(parseInt(x[3].data.data[0].value).toFixed(2));
           }
         })
       )
@@ -252,7 +290,7 @@ const Links = ({ route, navigation }) => {
 
           if (x[0].data.data[0]) {
             // console.log(x[0].data.data[0].value);
-            setTemp(x[0].data.data[0].value);
+            setTemp(parseInt(x[0].data.data[0].value).toFixed(2));
             setTimeout(() => {
               setRangeColor_temp(() => {
                 if (brix <= 33) {
@@ -276,15 +314,15 @@ const Links = ({ route, navigation }) => {
           }
           if (x[1].data.data[0]) {
             // console.log(x[1].data.data[0].value);
-            setTemp_min(x[1].data.data[0].value);
+            setTemp_min(parseInt(x[1].data.data[0].value).toFixed(2));
           }
           if (x[2].data.data[0]) {
             // console.log(x[2].data.data[0].value);
-            setTemp_avg(x[2].data.data[0].value);
+            setTemp_avg(parseInt(x[2].data.data[0].value).toFixed(2));
           }
           if (x[3].data.data[0]) {
             // console.log(x[3].data.data[0].value);
-            setTemp_max(x[3].data.data[0].value);
+            setTemp_max(parseInt(x[3].data.data[0].value).toFixed(2));
           }
         })
       )
@@ -337,40 +375,61 @@ const Links = ({ route, navigation }) => {
       .all([promise1, promise2, promise3])
       .then(
         axios.spread((...x) => {
-          // console.log("get_brixlinex", x[0].data);
-
           if (x[0].data) {
             const data_array = x[0].data.data;
-            // console.log("data0", data_array);
-            setBrix_line(
-              data_array.map((index) => {
-                return index.value;
-              })
-            );
-            setBrix_y(
-              data_array.map((index) => {
-                return convertDate(index.time);
-              })
-            );
+            // console.log("data0", data_array.length);
+            var data = [];
+            var data_t = [];
+            data_array.map((index, key) => {
+              data.push(index.value.toFixed(2));
+              data_t.push(convertDate(index.time));
+            });
+            setBrix_line(data);
+            setBrix_y(data_t);
+
+            // setBrix_line(
+            //   data_array.map((index) => {
+            //     return index.value;
+            //   })
+            // );
+            // setBrix_y(
+            //   data_array.map((index) => {
+            //     return convertDate(index.time);
+            //   })
+            // );
           }
           if (x[1].data.data[0]) {
             const data_array = x[1].data.data;
             // console.log("data1", data_array);
-            setBrix_line_min(
-              data_array.map((index) => {
-                return index.min;
-              })
-            );
+            var data = [];
+            data_array.map((index, key) => {
+              data.push(index.min.toFixed(2));
+            });
+            setBrix_line_min(data);
+
+            // setBrix_line_min(
+            //   data_array.map((index) => {
+            //     return index.min;
+            //   })
+            // );
           }
           if (x[2].data.data[0]) {
             const data_array = x[2].data.data;
             // console.log("data2", data_array);
-            setBrix_line_max(
-              data_array.map((index) => {
-                return index.max;
-              })
-            );
+            var data = [];
+            data_array.map((index, key) => {
+              data.push(index.max.toFixed(2));
+            });
+            setBrix_line_max(data);
+            // setBrix_line_max(
+            //   data_array.map((index) => {
+            //     return index.max;
+            //   })
+            // );
           }
+          // console.log(brix_line_min);
+          // console.log(brix_line);
+          // console.log(brix_line_max);
         })
       )
       .catch((errors) => {
@@ -426,54 +485,28 @@ const Links = ({ route, navigation }) => {
 
           if (x[0].data) {
             const data_array = x[0].data.data;
-            console.log("data0", data_array);
+            // console.log("data0", data_array);
             setTemp_line_min(
               data_array.map((index) => {
-                return index.min;
+                return parseInt(index.min).toFixed(2);
               })
             );
-            // setBrix_line(
-            //   data_array.map((index) => {
-            //     return index.value;
-            //   })
-            // );
-            // setBrix_y(
-            //   data_array.map((index) => {
-            //     return convertDate(index.time);
-            //   })
-            // );
-            //     const data = response.data.data[0].min;
-            // const data_array = response.data.data;
-            // console.log("tempmin", data_array);
-            // data
-            //   ?
-            //   : undefined;
           }
           if (x[1].data.data[0]) {
             const data_array = x[1].data.data;
-            console.log("data1", data_array);
+            // console.log("data1", data_array);
             setTemp_line_max(
               data_array.map((index) => {
-                return index.max;
+                return parseInt(index.max).toFixed(2);
               })
             );
-            //     const data = response.data.data[0].max;
-            // const data_array = response.data.data;
-            // console.log("tempmax", data_array);
-            // data
-            //   ? setTemp_line_max(
-            //       data_array.map((index) => {
-            //         return index.max;
-            //       })
-            //     )
-            //   : undefined;
           }
           if (x[2].data.data[0]) {
             const data_array = x[2].data.data;
-            console.log("data2", data_array);
+            // console.log("data2", data_array);
             setTemp_line(
               data_array.map((index) => {
-                return index.value;
+                return parseInt(index.value).toFixed(2);
               })
             );
             setTemp_y(
@@ -481,31 +514,6 @@ const Links = ({ route, navigation }) => {
                 return convertDate(index.time);
               })
             );
-            // setBrix_line_max(
-            //   data_array.map((index) => {
-            //     return index.max;
-            //   })
-            // );
-            //   const data = response.data.data[0].value
-            //   ? response.data.data[0].value
-            //   : null;
-            // const data_array = response.data.data ? response.data.data : null;
-
-            // console.log("templine", data_array);
-            // data
-            //   ? setTemp_line(
-            //       data_array.map((index) => {
-            //         return index.value;
-            //       })
-            //     )
-            //   : undefined;
-            // data
-            //   ? setTemp_y(
-            //       data_array.map((index) => {
-            //         return convertDate(index.time);
-            //       })
-            //     )
-            //   : undefined;
           }
         })
       )
@@ -519,12 +527,15 @@ const Links = ({ route, navigation }) => {
       return s < 10 ? "0" + s : s;
     }
     var d = new Date(inputFormat);
+    console.log("time ", d);
     return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join("/");
+    // return [pad(d.getDate()), pad(d.getMonth() + 1)].join("/");
   }
   // console.log("isLoading_log", isLoading_log);
   if (isLoading_log) {
     return <Loadpage />;
   }
+
   return (
     <View style={{ backgroundColor: "#215199", paddingTop: 10 }}>
       <DateRangePicker
@@ -567,12 +578,12 @@ const Links = ({ route, navigation }) => {
             backgroundColor: "#448fff",
             width: "30%",
             borderRadius: 6,
-            height:50
+            height: 50,
           }}
         >
           <RNPickerSelect
             value={time_select}
-            onValueChange={(value) => setTime_select(value)}
+            onValueChange={(value) => onchangeTime(value)}
             items={time_data}
             color="#fff"
           />
@@ -597,10 +608,10 @@ const Links = ({ route, navigation }) => {
             </Text>
             <LineChart
               data={{
-                labels: [brix_y],
+                labels: brix_y,
                 datasets: [
                   {
-                    data: [brix_line_max],
+                    data: brix_line_max,
                     color: (opacity = 1) => `rgba(68, 255, 199, ${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -608,7 +619,7 @@ const Links = ({ route, navigation }) => {
                     },
                   },
                   {
-                    data: [brix_line],
+                    data: brix_line,
                     color: (opacity = 1) => `rgba(232, 235, 61,${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -616,7 +627,7 @@ const Links = ({ route, navigation }) => {
                     },
                   },
                   {
-                    data: [brix_line_min],
+                    data: brix_line_min,
                     color: (opacity = 1) => `rgba(235, 81, 61,${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -628,12 +639,12 @@ const Links = ({ route, navigation }) => {
               }}
               width={Dimensions.get("window").width - 20} // from react-native
               height={220}
-              yAxisInterval={2} // optional, defaults to 1
+              // yAxisInterval={2} // optional, defaults to 1
               chartConfig={{
                 backgroundColor: "#fff",
                 backgroundGradientFrom: "#fff",
                 backgroundGradientTo: "#fff",
-                decimalPlaces: 0,
+                // decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
               }}
@@ -644,12 +655,6 @@ const Links = ({ route, navigation }) => {
               }}
             />
           </View>
-          {/* <Brix
-            start={dateRange.startDate}
-            end={dateRange.endDate}
-            itemI={itemId}
-            time_select={time_select}
-          /> */}
           {/* chart value 2*/}
           <View style={styles.box_chart2}>
             <Text
@@ -664,10 +669,10 @@ const Links = ({ route, navigation }) => {
             </Text>
             <LineChart
               data={{
-                labels: [temp_y],
+                labels: temp_y,
                 datasets: [
                   {
-                    data: [temp_line_max],
+                    data: temp_line_max,
                     color: (opacity = 1) => `rgba(68, 255, 199, ${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -675,7 +680,7 @@ const Links = ({ route, navigation }) => {
                     },
                   },
                   {
-                    data: [temp_line],
+                    data: temp_line,
                     color: (opacity = 1) => `rgba(232, 235, 61,${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -683,7 +688,7 @@ const Links = ({ route, navigation }) => {
                     },
                   },
                   {
-                    data: [temp_line_min],
+                    data: temp_line_min,
                     color: (opacity = 1) => `rgba(235, 81, 61,${opacity})`,
                     propsForDots: {
                       r: "4",
@@ -696,13 +701,13 @@ const Links = ({ route, navigation }) => {
               width={Dimensions.get("window").width - 20} // from react-native
               height={220}
               // yAxisLabel="$"
-              yAxisInterval={2} // optional, defaults to 1
+              // yAxisInterval={2} // optional, defaults to 1
               chartConfig={{
                 paddingTop: 20,
                 backgroundColor: "#fff",
                 backgroundGradientFrom: "#fff",
                 backgroundGradientTo: "#fff",
-                decimalPlaces: 0,
+                // decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                 margin: 0,
@@ -1027,7 +1032,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text_: {
-    fontSize: 24,
+    fontSize: 18,
   },
 });
 export default Links;
