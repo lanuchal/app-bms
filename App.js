@@ -127,6 +127,7 @@ function App() {
       userToken = null;
       try {
         userToken = await AsyncStorage.getItem("userToken");
+        
         setUserId(userToken);
       } catch (e) {
         console.log(e);

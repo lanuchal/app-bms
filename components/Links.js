@@ -567,7 +567,7 @@ const Links = ({ route, navigation }) => {
             backgroundColor: "#448fff",
             width: "30%",
             borderRadius: 6,
-            padding: 0,
+            height:50
           }}
         >
           <RNPickerSelect
@@ -910,7 +910,7 @@ const styles = StyleSheet.create({
     right: 0,
     width: "15%",
     backgroundColor: "#448fff",
-    height: 53,
+    height: 50,
     textAlign: "center",
     display: "flex",
     flexDirection: "row",
