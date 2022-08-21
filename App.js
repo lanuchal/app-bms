@@ -89,7 +89,7 @@ function App() {
 
       let userToken;
       userToken = null;
-      if (userName == inputUserName && passWord == inputPassWord) {
+      if (userName == inputUserName ) {
         try {
           userToken = String(id);
           console.log("login");

@@ -561,21 +561,22 @@ const Links = ({ route, navigation }) => {
         >
           select date and time ...
         </Text>
-      </View>
-      <View
-        style={{
-          backgroundColor: "#448fff",
-          width: "30%",
-          borderRadius: 6,
-          padding: 0,
-        }}
-      >
-        <RNPickerSelect
-          value={time_select}
-          onValueChange={(value) => setTime_select(value)}
-          items={time_data}
-          color="#fff"
-        />
+
+        <View
+          style={{
+            backgroundColor: "#448fff",
+            width: "30%",
+            borderRadius: 6,
+            padding: 0,
+          }}
+        >
+          <RNPickerSelect
+            value={time_select}
+            onValueChange={(value) => setTime_select(value)}
+            items={time_data}
+            color="#fff"
+          />
+        </View>
       </View>
       {/* </View> */}
 
